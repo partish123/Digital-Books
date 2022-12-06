@@ -1,12 +1,14 @@
 package com.digitalbooks.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.digitalbooks.model.Book;
-//import com.digitalbooks.model.Subscription;
+import com.digitalbooks.model.Reader;
+import com.digitalbooks.model.Subscription;
 import com.digitalbooks.repository.BookRepository;
-//import com.digitalbooks.repository.SubscriptionRepository;
+import com.digitalbooks.repository.SubscriptionRepository;
 import com.digitalbooks.utility.BookException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +20,8 @@ public class BookService {
     @Autowired
     private BookRepository bookRepo;
 
-  //  @Autowired
- //   private SubscriptionRepository subscriptionRepo;
+    @Autowired
+    private SubscriptionRepository subscriptionRepo;
 
     public void createbook(Book book) throws BookException {
         try{
@@ -52,7 +54,7 @@ public class BookService {
 
                 bookRepo.save(books.get());
             } else {
-                throw new BookException("GIVEN AUTHOR_ID NOT MATCHING WITH ACTUAL AUTHOR ");
+                throw new BookException("Sorry something went wrong in update book functionality");
             }
     }
 
@@ -83,81 +85,81 @@ public class BookService {
     }
 
 
-//    public boolean subscribeBook(String bookId, Reader reader) throws BookExceptionHandler{
-//
-//        List<Book> subscribedBooks = new ArrayList<>();
-//        Subscription subscription = new Subscription();
-//        boolean subscriptionFlag = true;
-//
-//        if (bookId != null && !bookId.isEmpty() && !reader.getEmailId().isEmpty()) {
-//            Optional<Book> book = bookRepo.findById(Integer.parseInt(bookId));
-//            List<Subscription> subscribe = subscriptionRepo.findByEmailId(reader.getEmailId());
-//            if (book.isPresent()) {
-//                if(!subscribe.isEmpty()) {
-//                    for (Subscription value : subscribe) {
-//                        for (int j = 0; j < value.getBook().size(); j++) {
-//                            if (value.getBook().get(j).getBookID() == Integer.parseInt(bookId)) {
-//                                subscriptionFlag = false;
-//
-//                            }
-//                        }
-//                    }
-//                }
-//                if(subscriptionFlag){
-//                    subscribedBooks.add(book.get());
-//                    subscription.setBook(subscribedBooks);
-//                    subscription.setEmailID(reader.getEmailId());
-//                    subscriptionRepo.save(subscription);
-//                    return true;
-//                }
-//            }
-//            else {
-//                throw new BookExceptionHandler("CANNOT FIND BOOK WITH GIVEN ID" + bookId);
-//            }
-//        }
-//        else {
-//            throw new BookExceptionHandler("Value missing for book ID" + bookId + " and reader");
-//        }
-//
-//
-//        return subscriptionFlag;
-//    }
-//
-//
-//    public List<Book> getAllSubscribedBooks(String emailId) throws BookExceptionHandler {
-//        List<Book> book = new ArrayList<>();
-//        List<Subscription> subscribedBooks = subscriptionRepo.findByEmailId(emailId);
-//        if (subscribedBooks != null && !subscribedBooks.isEmpty()) {
-//            for (Subscription value : subscribedBooks) {
-//                book.addAll(value.getBook());
-//            }
-//        }
-//        else {
-//            throw new BookExceptionHandler("CANNOT FIND BOOKS For GIVEN EmailID" + emailId);
-//        }
-//        return book;
-//    }
-//
-//
-//    public Book getSubscribedBook(String emailId, String subscriptionId) throws BookExceptionHandler {
-//
-//        List<Subscription> subscribedBooks = subscriptionRepo.findByEmailId(emailId);
-//        Book book = null;
-//        if (!emailId.isEmpty() && !subscriptionId.isEmpty()) {
-//            if (subscribedBooks != null && !subscribedBooks.isEmpty()) {
-//                for (Subscription value : subscribedBooks) {
-//                    for (int j = 0; j < value.getBook().size(); j++) {
-//                        if (value.getBook().get(j).getBookID() == Integer.parseInt(subscriptionId)) {
-//                            book = value.getBook().get(j);
-//                        }
-//                    }
-//                }
-//            } else {
-//                throw new BookExceptionHandler("CANNOT FIND BOOK WITH GIVEN ID" + subscriptionId);
-//            }
-//        } else {
-//            throw new BookExceptionHandler("Email and Subscription IDs are missing");
-//        }
-//        return book;
-//    }
+    public boolean subscribeBook(String bookId, Reader reader) throws BookException{
+
+        List<Book> subscribedBooks = new ArrayList<>();
+        Subscription subscription = new Subscription();
+        boolean subscriptionFlag = true;
+
+        if (bookId != null && !bookId.isEmpty() && !reader.getEmailId().isEmpty()) {
+            Optional<Book> book = bookRepo.findById(Integer.parseInt(bookId));
+            List<Subscription> subscribe = subscriptionRepo.findByEmailId(reader.getEmailId());
+            if (book.isPresent()) {
+                if(!subscribe.isEmpty()) {
+                    for (Subscription value : subscribe) {
+                        for (int j = 0; j < value.getBook().size(); j++) {
+                            if (value.getBook().get(j).getBookID() == Integer.parseInt(bookId)) {
+                                subscriptionFlag = false;
+
+                            }
+                        }
+                    }
+                }
+                if(subscriptionFlag){
+                    subscribedBooks.add(book.get());
+                    subscription.setBook(subscribedBooks);
+                    subscription.setEmailID(reader.getEmailId());
+                    subscriptionRepo.save(subscription);
+                    return true;
+                }
+            }
+            else {
+                throw new BookException("CANNOT FIND BOOK WITH GIVEN ID" + bookId);
+            }
+        }
+        else {
+            throw new BookException("Value missing for book ID" + bookId + " and reader");
+        }
+
+
+        return subscriptionFlag;
+    }
+
+
+    public List<Book> getAllSubscribedBooks(String emailId) throws BookException {
+        List<Book> book = new ArrayList<>();
+        List<Subscription> subscribedBooks = subscriptionRepo.findByEmailId(emailId);
+        if (subscribedBooks != null && !subscribedBooks.isEmpty()) {
+            for (Subscription value : subscribedBooks) {
+                book.addAll(value.getBook());
+            }
+        }
+        else {
+            throw new BookException("CANNOT FIND BOOKS For GIVEN EmailID" + emailId);
+        }
+        return book;
+    }
+
+
+    public Book getSubscribedBook(String emailId, String subscriptionId) throws BookException {
+
+        List<Subscription> subscribedBooks = subscriptionRepo.findByEmailId(emailId);
+        Book book = null;
+        if (!emailId.isEmpty() && !subscriptionId.isEmpty()) {
+            if (subscribedBooks != null && !subscribedBooks.isEmpty()) {
+                for (Subscription value : subscribedBooks) {
+                    for (int j = 0; j < value.getBook().size(); j++) {
+                        if (value.getBook().get(j).getBookID() == Integer.parseInt(subscriptionId)) {
+                            book = value.getBook().get(j);
+                        }
+                    }
+                }
+            } else {
+                throw new BookException("CANNOT FIND BOOK WITH GIVEN ID" + subscriptionId);
+            }
+        } else {
+            throw new BookException("Email and Subscription IDs are missing");
+        }
+        return book;
+    }
 }

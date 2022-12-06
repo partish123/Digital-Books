@@ -1,6 +1,7 @@
 package com.digitalbooks.controllers;
 
 import com.digitalbooks.model.Book;
+import com.digitalbooks.model.Reader;
 import com.digitalbooks.payload.CreateBookRequest;
 import com.digitalbooks.payload.UpdateBookRequest;
 import com.digitalbooks.repository.BookRepository;
@@ -47,7 +48,7 @@ public class BookController {
     }
 
         @PostMapping("/author/{author-id}/books")
-        public ResponseEntity<?> createBook(@Valid @PathVariable("author-id") int authorId, @RequestBody CreateBookRequest payload) throws BookException {
+        public ResponseEntity<String> createBook(@Valid @PathVariable("author-id") int authorId, @RequestBody CreateBookRequest payload) throws BookException {
             try {
                 LocalDate date = LocalDate.now();
                 Book book = new Book(payload.getBookTitle(), payload.getBookCode(), authorId, payload.getCategory(), payload.getPrice(), payload.getPublisher(), date, date, true, payload.getBookcontent());
@@ -59,7 +60,7 @@ public class BookController {
         }
 
     @PutMapping("/author/{author-id}/books/{book-id}")
-    public ResponseEntity<?> updateBook(@Valid @PathVariable("author-id") int authorId, @Valid @PathVariable("book-id") int bookId,@RequestBody UpdateBookRequest payload) throws BookException {
+    public ResponseEntity<String> updateBook(@Valid @PathVariable("author-id") int authorId, @Valid @PathVariable("book-id") int bookId,@RequestBody UpdateBookRequest payload) throws BookException {
         try{
             LocalDate date = LocalDate.now();
             Book book = new Book(payload.getBookTitle(), bookId, authorId, payload.getCategory(), payload.getPrice(), payload.getPublisher(), date, date, payload.isActive(), payload.getBookcontent());
@@ -67,8 +68,9 @@ public class BookController {
             return new ResponseEntity<>("Book is updated successfully",HttpStatus.ACCEPTED);
         }
         catch (Exception e){
-            throw new BookException("Sorry something went wrong in update book functionality",e);
+            throw new BookException("Either GIVEN AUTHOR_ID NOT MATCHING WITH ACTUAL AUTHOR or Book id is not found in repository",e);
         }
+
 
     }
 
@@ -97,51 +99,51 @@ public class BookController {
     }
 
 
-//    @PostMapping("/{bookId}/subscribe")
-//    public  ResponseEntity<String> subscribeBook(@RequestBody Reader reader, @PathVariable String bookId) throws BookExceptionHandler{
-//        try {
-//            boolean status= service.subscribeBook(bookId,reader);
-//            if(status)
-//                return ResponseEntity.status(200).body("SUBSCRIBED SUCCESSFULLY");
-//            else
-//                throw new BookExceptionHandler("BOOK_IS_ALREADY_SUBSCRIBED");
-//
-//        }catch(Exception e) {
-//            throw new BookExceptionHandler("Sorry something went wrong",e);
-//        }
-//    }
-//
-//
-//    @GetMapping("/readers/{emailId}/books")
-//    public ResponseEntity<List<Book>> getAllSubscribedBooks(@Valid @PathVariable String emailId) throws BookExceptionHandler{
-//        if(emailId!=null && !emailId.isEmpty()) {
-//            try {
-//                List<Book> subscribedBooks=service.getAllSubscribedBooks(emailId);
-//                return new ResponseEntity<>(subscribedBooks,HttpStatus.OK);
-//            }catch(Exception e) {
-//                throw new BookExceptionHandler("Sorry something went wrong",e);
-//            }
-//        }
-//       else {
-//            throw new BookExceptionHandler("DATA_MISSING");
-//        }
-//
-//    }
-//
-//
-//    @GetMapping("/readers/{emailId}/books/{subscriptionId}")
-//    public ResponseEntity<Book> getSubscribedBook(@PathVariable String emailId,@PathVariable String subscriptionId) throws BookExceptionHandler{
-//        if(emailId!=null&&!emailId.isEmpty()) {
-//            try {
-//                Book subscribedBook = service.getSubscribedBook(emailId,subscriptionId);
-//                return new ResponseEntity<>(subscribedBook,HttpStatus.OK);
-//            }catch(Exception e) {
-//                throw new BookExceptionHandler("Sorry something went wrong",e);
-//            }
-//        }
-//        else {
-//            throw new BookExceptionHandler("Parameters are missing");
-//        }
-//    }
+    @PostMapping("/{bookId}/subscribe")
+    public  ResponseEntity<String> subscribeBook(@RequestBody Reader reader, @PathVariable String bookId) throws BookException{
+        try {
+            boolean status= service.subscribeBook(bookId,reader);
+            if(status)
+                return ResponseEntity.status(200).body("SUBSCRIBED SUCCESSFULLY");
+            else
+                throw new BookException("BOOK_IS_ALREADY_SUBSCRIBED");
+
+        }catch(Exception e) {
+            throw new BookException("Sorry something went wrong",e);
+        }
+    }
+
+
+    @GetMapping("/readers/{emailId}/books")
+    public ResponseEntity<List<Book>> getAllSubscribedBooks(@Valid @PathVariable String emailId) throws BookException{
+        if(emailId!=null && !emailId.isEmpty()) {
+            try {
+                List<Book> subscribedBooks=service.getAllSubscribedBooks(emailId);
+                return new ResponseEntity<>(subscribedBooks,HttpStatus.OK);
+            }catch(Exception e) {
+                throw new BookException("Sorry something went wrong",e);
+            }
+        }
+       else {
+            throw new BookException("DATA_MISSING");
+        }
+
+    }
+
+
+    @GetMapping("/readers/{emailId}/books/{subscriptionId}")
+    public ResponseEntity<Book> getSubscribedBook(@PathVariable String emailId,@PathVariable String subscriptionId) throws BookException{
+        if(emailId!=null&&!emailId.isEmpty()) {
+            try {
+                Book subscribedBook = service.getSubscribedBook(emailId,subscriptionId);
+                return new ResponseEntity<>(subscribedBook,HttpStatus.OK);
+            }catch(Exception e) {
+                throw new BookException("Sorry something went wrong",e);
+            }
+        }
+        else {
+            throw new BookException("Parameters are missing");
+        }
+    }
 
 }

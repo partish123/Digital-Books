@@ -19,7 +19,7 @@ public class Book {
     private String bookTitle;
     @Column(name = "BookID")
     private int bookID;
-    @Column(name = "Author")
+    @Column(name = "AuthorID")
     private int authorID;
     @Column(name = "Price")
     private double price;
@@ -44,6 +44,17 @@ public class Book {
     private LocalDate updatedOn;
     @Column(name = "Created_ON")
     private LocalDate createdOn;
+
+    @ManyToOne
+    private Subscription subscription;
+
+    public Subscription getSubscription() {
+        return subscription;
+    }
+
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
+    }
 
 
     public Book() {
