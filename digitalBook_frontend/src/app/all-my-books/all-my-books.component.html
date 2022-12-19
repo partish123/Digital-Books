@@ -1,0 +1,31 @@
+<div class="container">
+
+    <table style="width:100%">
+        <tr>
+            <th>Title</th>
+            <th>Publisher</th>
+            <th>Price</th>
+            <th>Published date</th>
+            <th>Active Status</th>
+            <th>Actions</th>
+        </tr>
+
+        <tr *ngFor="let book of bookList">
+            <td>{{book.bookTitle}}</td>
+            <td>{{book.publisher}}</td>
+            <td>{{book.price}}</td>
+            <td>{{book.createdOn}}</td>
+            <td>{{book.active}}</td>
+            <!-- <td style="display:none" #bookID>{{book.id}}</td> -->
+            <td><span>
+                    <button style="margin-right: 10px;" (click)="doUpdate()">Update</button>
+                    <button (click)="doBlock()">Block</button>
+                </span>
+            </td>
+            
+        </tr>
+
+    </table>
+
+
+</div>

@@ -12,15 +12,14 @@ import java.util.Arrays;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "BookID")
     private int id;
     @NotBlank
     @Size(max = 150)
     @Column(name = "Title")
     private String bookTitle;
-    @Column(name = "BookID")
-    private int bookID;
     @Column(name = "AuthorID")
-    private int authorID;
+    private int authorId;
     @Column(name = "Price")
     private double price;
     @NotBlank
@@ -33,7 +32,7 @@ public class Book {
     private String publisher;
     @Column(name = "Logo")
     @Lob
-    private byte[] logo;
+    private String logo;
     @Column(name = "AudioURL")
     private String audioURL;
     @Column(name = "Content")
@@ -45,31 +44,61 @@ public class Book {
     @Column(name = "Created_ON")
     private LocalDate createdOn;
 
-    @ManyToOne
-    private Subscription subscription;
+    @Column(name = "subscription_count")
+    private Long subscriptionCount;
 
-    public Subscription getSubscription() {
-        return subscription;
+    public Book(int id, String bookTitle, int authorId, String category, double price, String publisher, LocalDate date, LocalDate date1, boolean active, String bookcontent,Long subscriptionCount) {
+        this.id = id;
+        this.bookTitle=bookTitle;
+        this.authorId=authorId;
+        this.category = category;
+        this.price = price;
+        this.publisher = publisher;
+        this.createdOn = date;
+        this.updatedOn = date1;
+        this.isActive = active;
+        this.content = bookcontent;
+        this.subscriptionCount =subscriptionCount;
     }
 
-    public void setSubscription(Subscription subscription) {
-        this.subscription = subscription;
-    }
+//    public Subscription getSubscription() {
+//        return subscription;
+//    }
+//
+//    public void setSubscription(Subscription subscription) {
+//        this.subscription = subscription;
+//    }
 
 
     public Book() {
+
     }
 
-    public Book(String bookTitle, int bookCode, @Valid int authorId, String category, double price, String publisher, LocalDate now, LocalDate localDate, boolean b, String bookcontent) {
+    //For create book
+    public Book(String bookTitle, int authorId, String category, double price, String publisher, LocalDate now, LocalDate localDate, boolean b, String bookcontent,Long subscriptionCount) {
         this.bookTitle=bookTitle;
-        this.bookID = bookCode;
-        this.authorID=authorId;
+        this.authorId=authorId;
         this.category = category;
         this.price = price;
         this.publisher = publisher;
         this.createdOn = now;
         this.updatedOn = localDate;
         this.isActive = b;
+        this.content = bookcontent;
+        this.subscriptionCount = subscriptionCount;
+    }
+
+    //For update book
+    public Book(int bookId, String bookTitle, int authorId, String category, double price, String publisher, LocalDate date, LocalDate date1, boolean active, String bookcontent) {
+        this.id = bookId;
+        this.bookTitle=bookTitle;
+        this.authorId=authorId;
+        this.category = category;
+        this.price = price;
+        this.publisher = publisher;
+        this.createdOn = date;
+        this.updatedOn = date1;
+        this.isActive = active;
         this.content = bookcontent;
     }
 
@@ -90,20 +119,12 @@ public class Book {
         this.bookTitle = bookTitle;
     }
 
-    public int getBookID() {
-        return bookID;
-    }
-
-    public void setBookID(int bookID) {
-        this.bookID = bookID;
-    }
-
     public int getAuthorID() {
-        return authorID;
+        return authorId;
     }
 
-    public void setAuthorID(int authorID) {
-        this.authorID = authorID;
+    public void setAuthorID(int authorId) {
+        this.authorId = authorId;
     }
 
     public double getPrice() {
@@ -130,11 +151,11 @@ public class Book {
         this.publisher = publisher;
     }
 
-    public byte[] getLogo() {
+    public String getLogo() {
         return logo;
     }
 
-    public void setLogo(byte[] logo) {
+    public void setLogo(String logo) {
         this.logo = logo;
     }
 
@@ -178,22 +199,31 @@ public class Book {
         this.createdOn = createdOn;
     }
 
+
+    public Long getSubscriptionCount() {
+        return subscriptionCount;
+    }
+
+    public void setSubscriptionCount(Long subscriptionCount) {
+        this.subscriptionCount = subscriptionCount;
+    }
+
     @Override
     public String toString() {
         return "Book{" +
                 "id=" + id +
                 ", bookTitle='" + bookTitle + '\'' +
-                ", bookID=" + bookID +
-                ", authorID=" + authorID +
+                ", authorId=" + authorId +
                 ", price=" + price +
                 ", category='" + category + '\'' +
                 ", publisher='" + publisher + '\'' +
-                ", logo=" + Arrays.toString(logo) +
+                ", logo=" + logo +
                 ", audioURL='" + audioURL + '\'' +
                 ", content='" + content + '\'' +
                 ", isActive=" + isActive +
                 ", updatedOn=" + updatedOn +
                 ", createdOn=" + createdOn +
+                ", subscriptionCount=" + subscriptionCount +
                 '}';
     }
 }

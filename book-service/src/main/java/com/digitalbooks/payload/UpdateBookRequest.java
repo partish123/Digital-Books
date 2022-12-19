@@ -12,8 +12,6 @@ public class UpdateBookRequest {
     @Size(max = 150)
     private String bookTitle;
 
-    private int bookCode;
-
     @NotBlank
     @Size(max = 100)
     private String category;
@@ -25,7 +23,7 @@ public class UpdateBookRequest {
     private String publisher;
 
 
-    private byte[] image;
+    private String image;
     @NotNull
     boolean isActive;
 
@@ -41,13 +39,6 @@ public class UpdateBookRequest {
         this.bookTitle = bookTitle;
     }
 
-    public int getBookCode() {
-        return bookCode;
-    }
-
-    public void setBookCode(int bookCode) {
-        this.bookCode = bookCode;
-    }
 
     public String getCategory() {
         return category;
@@ -73,11 +64,11 @@ public class UpdateBookRequest {
         this.publisher = publisher;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -98,9 +89,8 @@ public class UpdateBookRequest {
     }
 
 
-    public UpdateBookRequest(String bookTitle, int bookCode, String category, double price, String publisher, byte[] image, String bookcontent) {
+    public UpdateBookRequest(String bookTitle, String category, double price, String publisher, String image, String bookcontent) {
         this.bookTitle = bookTitle;
-        this.bookCode = bookCode;
         this.category = category;
         this.price = price;
         this.publisher = publisher;
@@ -112,11 +102,10 @@ public class UpdateBookRequest {
     public String toString() {
         return "UpdateBookRequest{" +
                 "bookTitle='" + bookTitle + '\'' +
-                ", bookCode=" + bookCode +
                 ", category='" + category + '\'' +
                 ", price=" + price +
                 ", publisher='" + publisher + '\'' +
-                ", image=" + Arrays.toString(image) +
+                ", image=" + image +
                 ", isActive=" + isActive +
                 ", bookcontent='" + bookcontent + '\'' +
                 '}';

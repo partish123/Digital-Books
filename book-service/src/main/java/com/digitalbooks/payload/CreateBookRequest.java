@@ -9,8 +9,6 @@ public class CreateBookRequest {
     @Size(max = 150)
     private String bookTitle;
 
-    private int bookCode;
-
     @NotBlank
     @Size(max = 100)
     private String category;
@@ -22,7 +20,7 @@ public class CreateBookRequest {
     private String publisher;
 
 
-    private byte[] image;
+    private String image;
 
     boolean isActive;
 
@@ -36,14 +34,6 @@ public class CreateBookRequest {
 
     public void setBookTitle(String bookTitle) {
         this.bookTitle = bookTitle;
-    }
-
-    public int getBookCode() {
-        return bookCode;
-    }
-
-    public void setBookCode(int bookCode) {
-        this.bookCode = bookCode;
     }
 
     public String getCategory() {
@@ -70,11 +60,11 @@ public class CreateBookRequest {
         this.publisher = publisher;
     }
 
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -95,9 +85,9 @@ public class CreateBookRequest {
     }
 
 
-    public CreateBookRequest(String bookTitle, int bookCode, String category, double price, String publisher, byte[] image, String bookContent) {
+    public CreateBookRequest(String bookTitle, int bookCode, String category, double price, String publisher, String image, String bookContent) {
         this.bookTitle = bookTitle;
-        this.bookCode = bookCode;
+
         this.category = category;
         this.price = price;
         this.publisher = publisher;
@@ -109,11 +99,10 @@ public class CreateBookRequest {
     public String toString() {
         return "CreateBookRequest{" +
                 "bookTitle='" + bookTitle + '\'' +
-                ", bookCode=" + bookCode +
                 ", category='" + category + '\'' +
                 ", price=" + price +
                 ", publisher='" + publisher + '\'' +
-                ", image=" + Arrays.toString(image) +
+                ", image=" + image +
                 ", isActive=" + isActive +
                 ", bookcontent='" + bookcontent + '\'' +
                 '}';

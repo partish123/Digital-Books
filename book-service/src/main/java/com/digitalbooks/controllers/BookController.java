@@ -20,7 +20,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/digitalbooks")
+@RequestMapping("/books")
 @CrossOrigin
 public class BookController {
     @Autowired
@@ -32,12 +32,16 @@ public class BookController {
     private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     @GetMapping("/search")
-    public ResponseEntity<List<Book>> searchBooks(@RequestParam(required = false ,defaultValue = "") String title, @RequestParam(required = false,defaultValue = "")
-    String author, @RequestParam(defaultValue ="0") String price, @RequestParam(required = false,defaultValue = "") String publisher) throws BookException {
+    public ResponseEntity<?> searchBooks(@RequestParam(required = false ,defaultValue = "") String title, @RequestParam(required = false,defaultValue = "")
+    String author, @RequestParam(defaultValue ="") String price, @RequestParam(required = false,defaultValue = "") String publisher,@RequestParam(name="category" ,defaultValue="") String category) throws BookException {
       try{
           logger.info("Inside search book method");
 
-          List<Book> books=service.searchBook(title,author,price,publisher);
+          List<Book> books =service.searchBook(title,author,price,publisher,category);
+
+          if(books.isEmpty()){
+              return new ResponseEntity<>("Books not found", HttpStatus.OK);
+          }
 
           return new ResponseEntity<>(books, HttpStatus.OK);
       }
@@ -51,19 +55,20 @@ public class BookController {
         public ResponseEntity<String> createBook(@Valid @PathVariable("author-id") int authorId, @RequestBody CreateBookRequest payload) throws BookException {
             try {
                 LocalDate date = LocalDate.now();
-                Book book = new Book(payload.getBookTitle(), payload.getBookCode(), authorId, payload.getCategory(), payload.getPrice(), payload.getPublisher(), date, date, true, payload.getBookcontent());
+                Book book = new Book(payload.getBookTitle(),authorId, payload.getCategory(), payload.getPrice(), payload.getPublisher(), date, date, payload.isActive(), payload.getBookcontent(),0L);
                 service.createbook(book);
-                return new ResponseEntity<>("Book is added successfully", HttpStatus.CREATED);
+                return new ResponseEntity<>("Book added successfully!",HttpStatus.CREATED);
             }catch (Exception e){
                 throw new BookException("Sorry something went wrong in create book functionality",e);
             }
         }
 
-    @PutMapping("/author/{author-id}/books/{book-id}")
+    @PostMapping("/author/{author-id}/books/{book-id}")
     public ResponseEntity<String> updateBook(@Valid @PathVariable("author-id") int authorId, @Valid @PathVariable("book-id") int bookId,@RequestBody UpdateBookRequest payload) throws BookException {
         try{
             LocalDate date = LocalDate.now();
-            Book book = new Book(payload.getBookTitle(), bookId, authorId, payload.getCategory(), payload.getPrice(), payload.getPublisher(), date, date, payload.isActive(), payload.getBookcontent());
+            Book book = new Book(bookId,payload.getBookTitle(),authorId, payload.getCategory(), payload.getPrice(), payload.getPublisher(), date, date, payload.isActive(), payload.getBookcontent());
+            logger.debug("Book value is -> {}",book);
             service.updateBook(book , authorId , bookId);
             return new ResponseEntity<>("Book is updated successfully",HttpStatus.ACCEPTED);
         }
@@ -75,8 +80,8 @@ public class BookController {
     }
 
 
-    @PostMapping("author/{authorId}/books/{bookId}")
-    public ResponseEntity<String> blockOrUnBlockBook(@PathVariable(value="authorId") String authorId,@PathVariable(value="bookId") String bookId,@RequestParam(defaultValue ="") String block) throws BookException {
+    @PostMapping("author/{authorId}/books/{bookId}/block={block}")
+    public ResponseEntity<String> blockOrUnBlockBook(@PathVariable(value="authorId") String authorId,@PathVariable(value="bookId") String bookId,@PathVariable(value = "block") String block) throws BookException {
         if(block!=null && !block.isEmpty() && authorId!=null && bookId!=null) {
             try {
                 boolean status = service.blockOrUnBlockBookByAuthor(authorId,bookId,block);
@@ -87,10 +92,10 @@ public class BookController {
                         return ResponseEntity.status(200).body("SUCCESSFULLY_UNBLOCKED");
                 }
                 else {
-                    throw new BookException("Sorry something went wrong in block/unblock book functionality");
+                    throw new BookException("Book ID / AUTHOR ID NOT MATCHING WITH RECORDS");
                 }
             }catch(Exception e) {
-                throw new BookException("Sorry something went wrong in block/unblock book functionality",e);
+                throw new BookException("Book ID / AUTHOR ID NOT MATCHING WITH RECORDS",e);
             }
         }
         else {
@@ -109,7 +114,7 @@ public class BookController {
                 throw new BookException("BOOK_IS_ALREADY_SUBSCRIBED");
 
         }catch(Exception e) {
-            throw new BookException("Sorry something went wrong",e);
+            throw new BookException("BOOK_IS_ALREADY_SUBSCRIBED",e);
         }
     }
 
@@ -121,7 +126,7 @@ public class BookController {
                 List<Book> subscribedBooks=service.getAllSubscribedBooks(emailId);
                 return new ResponseEntity<>(subscribedBooks,HttpStatus.OK);
             }catch(Exception e) {
-                throw new BookException("Sorry something went wrong",e);
+                throw new BookException("Sorry something went wrong..Please try after some time",e);
             }
         }
        else {
@@ -143,6 +148,38 @@ public class BookController {
         }
         else {
             throw new BookException("Parameters are missing");
+        }
+    }
+
+    @GetMapping("/readers/{emailId}/books/{subscriptionId}/read")
+    public ResponseEntity<String> getSubscribedBookContent(@PathVariable String emailId,@PathVariable String subscriptionId) throws BookException{
+        if(emailId!=null&&!emailId.isEmpty()) {
+            try {
+                Book subscribedBook= service.getSubscribedBook(emailId,subscriptionId);
+                return new ResponseEntity<>(subscribedBook.getContent(),HttpStatus.OK);
+            }catch(Exception e) {
+                throw new BookException("Sorry something went wrong",e);
+            }
+        }
+        else {
+            throw new BookException("Parameters are missing");
+        }
+    }
+
+
+    @PostMapping("/readers/{emailId}/books/{subscriptionId}/cancel-subscription")
+    public ResponseEntity<String>cancelSubscriptionWithIn24Hours(@PathVariable String emailId,@PathVariable String subscriptionId ) throws BookException{
+        if(emailId!=null &&!emailId.isEmpty() && !subscriptionId.isEmpty() && subscriptionId!=null) {
+            boolean cancel = service.cancleSubscriptionWithIn24Hours(emailId,subscriptionId);
+            if(cancel) {
+                return ResponseEntity.status(200).body("SUBSCRIPTION CANCELED SUCCESSFULLY");
+            }
+            else {
+                throw new BookException("SOMETHING WENT WRONG PLEASE TRY AFTER SOME TIME");
+            }
+        }
+        else {
+            return ResponseEntity.status(400).body("DATA_MISSING");
         }
     }
 
