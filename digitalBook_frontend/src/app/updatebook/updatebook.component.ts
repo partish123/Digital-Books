@@ -15,33 +15,37 @@ export class UpdatebookComponent implements OnInit {
 
 
   updatebook : any ={
-    title : '',
+    bookTitle : '',
     category : '',
     image : '',
     price : '',
     publisher : '',
     active : '',
-    content : '',
+    bookcontent : '',
     
   };
 
-  bookID: string | null | undefined;
+  bookId: any | null = '';
+  id: any |null='';
 
-  constructor(private route:ActivatedRoute,private userService: UserService, private snak:MatSnackBar,private tokenStorage: TokenStorageService) { }
+  constructor(private route:ActivatedRoute,private userService: UserService, private snak:MatSnackBar,private token: TokenStorageService) { }
 
   
 
   flag= false;
 
   ngOnInit(): void {
-    this.bookID = this.route.snapshot.paramMap.get('bookID');
+    this.bookId = this.route.snapshot.paramMap.get('bookId');
+    this.id=this.token.getUser().id;
+    console.log('Book id to update is  '+ this.bookId);
+    console.log('Author id is  '+ this.id);
   }
 
   doUpdateForm(){
   console.log("try to save form");
   console.log("DATA ",this.updatebook);
 
-  if(this.updatebook.title=='' || this.updatebook.price==''|| this.updatebook.category=='' || this.updatebook.publisher=='' || this.updatebook.active=='' || this.updatebook.content=='')
+  if(this.updatebook.bookTitle=='' || this.updatebook.price==''|| this.updatebook.category=='' || this.updatebook.publisher=='' || this.updatebook.active=='' || this.updatebook.bookcontent=='')
   {
     this.snak.open("Fields can not be empty !!","OK");
     return;
@@ -49,12 +53,14 @@ export class UpdatebookComponent implements OnInit {
 
   this.flag=true;
 
-  this.userService.updateBook(this.updatebook,this.bookID).subscribe(
+  this.userService.updateBook(this.updatebook,this.bookId).subscribe(
     response=>{
       console.log(response);   
       this.flag=false; 
       this.isUpdated= true;
-      this.snak.open("Updated book Successfully","OK")  
+      this.snak.open("Updated book Successfully","OK");  
+      this.updatebook = '';
+
     },
     error=>{
       console.log(error); 

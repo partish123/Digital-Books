@@ -23,17 +23,20 @@ export class AllMyBooksComponent implements OnInit {
     id:''
 
   };
+  
+  authorId:any ='';
 
 
   constructor(private token:TokenStorageService,private userService: UserService,private snak: MatSnackBar,private router: Router) { }
 
 
   ngOnInit(): void {
-    this.userService.getAuthorBooks(this.book).subscribe(
+    this.authorId = this.token.getUser().id;
+    this.userService.getAuthorBooks().subscribe(
       response => {
         this.isPresent = true;
         this.bookList = response;
-        this.snak.open("Books found", "OK");
+        //this.snak.open("Books found", "OK");
       },
       error => {
         console.log(error);
@@ -42,25 +45,46 @@ export class AllMyBooksComponent implements OnInit {
     )
   }
 
-  doUpdate(){
-    this.router.navigate(['/author/books/update',this.book.id]);
-    console.log("Updating book");
+  doUpdate(bookId:any):void{
+    console.log("Updating book with ID "+ bookId.value);
+    this.router.navigate(['/author/books/update',{bookId:bookId}]);
   }
 
-  doBlock(){
-    this.userService.getAuthorBooks(this.book).subscribe(
+  
+
+  doBlock(bookId:any){
+    const block:any='Yes';
+    
+    this.userService.blockOrUnblockBook(this.authorId,bookId,block).subscribe(
       response => {
-        this.isPresent = true;
-        this.bookList = response;
+        console.log(response);
         this.snak.open("Book is blocked", "OK");
+        this.ngOnInit();
       },
       error => {
         console.log(error);
-        this.snak.open("Unable to block Book!! ", "OK");
+        this.ngOnInit();
+        this.snak.open("Book is blocked", "OK");
       }
     )
   }
 
-  
+  doUnBlock(bookId:any){
+    const block:any='No';
+
+    this.userService.blockOrUnblockBook(this.authorId,bookId,block).subscribe(
+      response => {
+        console.log(response);
+        this.snak.open("Book is unblocked", "OK");
+        this.ngOnInit();
+      },
+      error => {
+        console.log(error);
+        this.ngOnInit();
+        this.snak.open("Book is unblocked", "OK");
+      }
+    )
+  }
+
 
 }

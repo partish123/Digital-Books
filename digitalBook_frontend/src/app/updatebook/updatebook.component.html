@@ -8,7 +8,7 @@
 
             <mat-form-field class="field" appearance="outline">
                 <mat-label>Title</mat-label>
-                <input name="title" [(ngModel)]="updatebook.title" matInput placeholder="Enter Title">
+                <input name="title" [(ngModel)]="updatebook.bookTitle" matInput placeholder="Enter Title">
             </mat-form-field>
             <mat-form-field class="field" appearance="outline">
                 <mat-label>Category</mat-label>
@@ -28,11 +28,11 @@
             </mat-form-field>
             <mat-form-field class="field" appearance="outline">
                 <mat-label>Active</mat-label>
-                <input name="active" [(ngModel)]="updatebook.active" matInput placeholder="Enter Yes/No">
+                <input name="active" [(ngModel)]="updatebook.active" matInput placeholder="Enter True/False">
             </mat-form-field>
             <mat-form-field class="example-full-width field">
                 <mat-label>Content</mat-label>
-                <textarea name="message" [(ngModel)]="updatebook.content" rows="10" matInput
+                <textarea name="message" [(ngModel)]="updatebook.bookcontent" rows="10" matInput
                     placeholder="Enter your book content here..."></textarea>
             </mat-form-field>
 

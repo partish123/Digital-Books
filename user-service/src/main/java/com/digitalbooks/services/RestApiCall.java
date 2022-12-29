@@ -49,7 +49,8 @@ public class RestApiCall {
     }
 
     public ResponseEntity<?> getAllSubscribeBooksByReader(String url, String emailId) {
-        List<Book> result = restTemplate.getForObject(BOOK_URL+url, List.class,emailId);
+        Object result = restTemplate.getForObject(BOOK_URL+url, List.class,emailId);
+        assert result != null;
         return ResponseEntity.ok(result);
     }
 

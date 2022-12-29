@@ -82,28 +82,33 @@ public class UserController {
 		try {
 			boolean sub= userService.subscribeBook(bookId,reader);
 			if(sub)
-				return ResponseEntity.status(200).body("SUCCESSFULLY_SUBSCRIBED");
+				return ResponseEntity.status(200).body("SUCCESSFULLY SUBSCRIBED");
 			else
-				throw new UserException("NOT_SUBSCRIBED");
+				throw new UserException("NOT SUBSCRIBED");
 
 		}catch(Exception e) {
-			throw new UserException("NOT_SUBSCRIBED",e);
+			throw new UserException("NOT SUBSCRIBED",e);
 		}
 	}
 
 
 	@GetMapping("/readers/{emailId}/books")
-	public ResponseEntity<List<Book>> getAllSubscribeBooksByReader(@PathVariable String emailId) throws UserException{
+	public ResponseEntity<?> getAllSubscribeBooksByReader(@PathVariable String emailId) throws UserException{
 		if(emailId!=null&&!emailId.equalsIgnoreCase("")) {
 			try {
-				List<Book> subscribBooksByReader=userService.getAllSubscribeBooksByReader(emailId);
-				return ResponseEntity.status(200).body(subscribBooksByReader);
+				Object subscribBooksByReader=userService.getAllSubscribeBooksByReader(emailId);
+				if(subscribBooksByReader!=null) {
+					return ResponseEntity.status(200).body(subscribBooksByReader);
+				}
+				else{
+					return ResponseEntity.status(200).body("No books are subscribed by reader");
+				}
 			}catch(Exception e) {
-				throw new UserException("SOMETHING_WENT_WRONG_PLESE_TRY_AFTER_SOME_TIME");
+				throw new UserException("SOMETHING WENT WRONG PLEASE TRY AFTER SOME TIME");
 			}
 		}
 		else {
-			throw new UserException("DATA_MISSING");
+			throw new UserException("DATA MISSING");
 		}
 	}
 
@@ -115,7 +120,7 @@ public class UserController {
 				Book subscribBookByReader=userService.getSubscribeBookByReaderEmailId(emailId,subscriptionId);
 				return ResponseEntity.status(200).body(subscribBookByReader);
 			}catch(Exception e) {
-				throw new UserException("SOMETHING_WENT_WRONG_PLESE_TRY_AFTER_SOME_TIME",e);
+				throw new UserException("SOMETHING WENT WRONG PLEASE TRY AFTER SOME TIME",e);
 			}
 		}
 		else {
@@ -156,19 +161,19 @@ public class UserController {
 		}
 	}
 
-	@PostMapping("author/{authorId}/books/{bookId}/block={block}")
-	public ResponseEntity<String> blockOrUnBlockBookByAuthor(@PathVariable(value="authorId") String authorId,@PathVariable(value="bookId") String bookId,@PathVariable(value = "block") String block) throws UserException{
+	@PostMapping("/author/{authorId}/books/{bookId}/block={block}")
+	public ResponseEntity<?> blockOrUnBlockBookByAuthor(@PathVariable(value="authorId") String authorId,@PathVariable(value="bookId") String bookId,@PathVariable(value = "block") String block) throws UserException{
 		if(block!=null&&!block.equalsIgnoreCase("")&&authorId!=null&&bookId!=null) {
 			try {
 				boolean update=userService.blockOrUnBlockBookByAuthor(authorId,bookId,block);
 				if(update) {
 					if(block.equalsIgnoreCase("Yes"))
-						return ResponseEntity.status(200).body("SUCCESSFULLY_BLOCKED");
+						return ResponseEntity.status(200).body("blocked");
 					else
-						return ResponseEntity.status(200).body("SUCCESSFULLY_UNBLOCKED");
+						return ResponseEntity.status(200).body("unblocked");
 				}
 				else {
-					throw new UserException("SOMETHING_WENT_WRONG_PLEASE_TRY_AFTER_SOME_TIME");
+					throw new UserException("SOMETHING WENT WRONG PLEASE_TRY_AFTER_SOME_TIME");
 				}
 			}catch(Exception e) {
 				throw new UserException("SOMETHING_WENT_WRONG_PLEASE_TRY_AFTER_SOME_TIME",e);

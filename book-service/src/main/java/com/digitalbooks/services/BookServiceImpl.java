@@ -115,14 +115,9 @@ public class BookServiceImpl implements BookService{
             if (!author.isEmpty()) {
                 book = bookRepo.findByAuthorId(Integer.parseInt(author));
                 logger.info("{}",book);
-                List<Book> activeBooks = new ArrayList<>();
-                for(Book b:book){
-                    if(b.isActive()){
-                        activeBooks.add(b);
-                    }
-                }
-                return activeBooks;
+                return new ArrayList<>(book);
             }
+
             if (!price.isEmpty()) {
                 book = bookRepo.findByPrice(price);
                 List<Book> activeBooks = new ArrayList<>();
@@ -185,7 +180,7 @@ public class BookServiceImpl implements BookService{
                 List<Subscription> sub = subscriptionRepo.findByEmailId(reader.getEmailId());
                 boolean notsubscribe = true;
                 for (Subscription subbook : sub) {
-                    if (subbook.getBookId() == Integer.parseInt(bookId)) {
+                    if (subbook.getBookId() == Integer.parseInt(bookId) && subbook.getIsActive()==1L) {
                         notsubscribe = false;
                     }
                 }
@@ -222,11 +217,13 @@ public class BookServiceImpl implements BookService{
         if (subscribedBooks != null && !subscribedBooks.isEmpty()) {
             List<Integer> bookIds = new ArrayList<>();
             for (Subscription value : subscribedBooks) {
-                bookIds.add(value.getBookId());
+                if(value.getIsActive()==1L) {
+                    bookIds.add(value.getBookId());
+                }
             }
             book = bookRepo.findAllById(bookIds);
         } else {
-            throw new BookException("CANNOT FIND BOOKS For GIVEN EMAIL_ID" + emailId);
+            logger.info("CANNOT FIND BOOKS For GIVEN EMAIL_ID {}",emailId);
         }
         return book;
     }
@@ -254,33 +251,40 @@ public class BookServiceImpl implements BookService{
     @Override
     public boolean cancleSubscriptionWithIn24Hours(String emailId, String subscriptionId) throws BookException {
         if (subscriptionId != null && !subscriptionId.isEmpty()) {
-            Optional<Subscription> subscribedBook = subscriptionRepo.findById(Integer.parseInt(subscriptionId));
+           // Optional<Subscription> subscribedBook = subscriptionRepo.findById(Integer.parseInt(subscriptionId));
 
-            if (!subscribedBook.isEmpty() && subscribedBook.get().getEmailId().equalsIgnoreCase(emailId)) {
-                Date presentDate = new Date();
-                Date subscribedDate = subscribedBook.get().getSubscriptionDate();
-                long diffInHours = getDiffInHours(subscribedDate, presentDate, TimeUnit.HOURS);
-                if (diffInHours < 24) {
-                    subscribedBook.get().setIsActive(0L);
-                    subscriptionRepo.save(subscribedBook.get());
-                    Optional<Book> book = bookRepo.findById(subscribedBook.get().getBookId());
-                    long count = book.isPresent() ? book.get().getSubscriptionCount() : 0;
-                    if (count > 0) {
-                        book.get().setSubscriptionCount(count - 1);
-                        bookRepo.save(book.get());
+            List<Subscription> subscribedBook = subscriptionRepo.findByBookId(Integer.parseInt(subscriptionId));
+
+            for(int i=0 ; i< subscribedBook.size() ; i++) {
+
+                if (!subscribedBook.isEmpty() && subscribedBook.get(i).getEmailId().equalsIgnoreCase(emailId)) {
+                    Date presentDate = new Date();
+                    Date subscribedDate = subscribedBook.get(i).getSubscriptionDate();
+                    long diffInHours = getDiffInHours(subscribedDate, presentDate, TimeUnit.HOURS);
+                    if (diffInHours < 24) {
+                        subscribedBook.get(i).setIsActive(0L);
+                        subscriptionRepo.save(subscribedBook.get(i));
+                        Optional<Book> book = bookRepo.findById(subscribedBook.get(i).getBookId());
+                        long count = book.isPresent() ? book.get().getSubscriptionCount() : 0;
+                        if (count > 0) {
+                            book.get().setSubscriptionCount(count - 1);
+                            bookRepo.save(book.get());
+                        }
+                        //subscriptionRepo.deleteById(subscribedBook.get(i).getSubscriberId());
+                        return true;
+                    } else {
+                        throw new BookException("CAN_NOT_CANCEL_SUBSCRIPTION_AFTER_24_HOURS" + subscriptionId);
                     }
-                    return true;
-                } else {
-                    throw new BookException("CAN_NOT_CANCEL_SUBSCRIPTION_AFTER_24_HOURS" + subscriptionId);
                 }
-            } else {
-                throw new BookException("ACCESS_DENIED" + subscriptionId);
+//                else {
+//                                        throw new BookException("ACCESS_DENIED" + subscriptionId);
+//                }
             }
-
         } else {
             throw new BookException("CAN_NOT_FIND_THE_SUBSCRIPTION_FOR_THE_BOOK_WITH_ID" + subscriptionId);
         }
 
+        return false;
     }
 
     public static long getDiffInHours(final Date date1, final Date date2, final TimeUnit timeUnit) {

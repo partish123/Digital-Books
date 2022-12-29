@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { TokenStorageService } from '../_services/token-storage.service';
 import { UserService } from '../_services/user.service';
 
 @Component({
@@ -10,22 +11,29 @@ import { UserService } from '../_services/user.service';
 export class SearchbookComponent implements OnInit {
 
   isFound = false;
-  booklist:any[] = [];
+  booklist: any[] = [];
 
   book: any = {
     bookTitle: '',
     authorId: '',
     publisher: '',
     category: '',
-    price: ''
+    price: '',
+    active: ''
 
   };
 
   flag = false;
+  role = this.token.getUser() != null && this.token.getUser().roles != null ? this.token.getUser().roles[0] : '';
+  reader: any = {
+    readerId: '',
+    emailId: ''
+  };
 
-  constructor(private userService: UserService, private snak: MatSnackBar) { }
+  constructor(private userService: UserService, private snak: MatSnackBar, private token: TokenStorageService) { }
 
   ngOnInit(): void {
+
   }
 
   doSubmitForm() {
@@ -48,9 +56,35 @@ export class SearchbookComponent implements OnInit {
       error => {
         console.log(error);
         this.flag = false;
-        this.snak.open("ERROR!! ", "OK");
+        this.snak.open("Book not found!! ", "OK");
       }
     )
+
+  }
+
+
+  subscribe(bookId: string): void {
+
+    this.reader.readerId = this.token.getUser().id;
+    this.reader.emailId = this.token.getUser().email;
+    this.userService.subscribeBook(this.reader, bookId).subscribe(
+      data => {
+        console.log(data);
+        alert(data);
+        this.snak.open("Book is subscribed", "OK");
+        setTimeout(function () {
+          window.location.reload();
+        }, 5000);
+      },
+      err => {
+        console.log(err.error.message);
+        alert(err.error.message);
+        setTimeout(function () {
+          window.location.reload();
+        }, 5000);
+      }
+
+    );
 
   }
 

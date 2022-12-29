@@ -87,9 +87,9 @@ public class BookController {
                 boolean status = service.blockOrUnBlockBookByAuthor(authorId,bookId,block);
                 if(status) {
                     if(block.equalsIgnoreCase("Yes"))
-                        return ResponseEntity.status(200).body("SUCCESSFULLY_BLOCKED");
+                        return ResponseEntity.status(200).body("SUCCESSFULLY BLOCKED");
                     else
-                        return ResponseEntity.status(200).body("SUCCESSFULLY_UNBLOCKED");
+                        return ResponseEntity.status(200).body("SUCCESSFULLY UNBLOCKED");
                 }
                 else {
                     throw new BookException("Book ID / AUTHOR ID NOT MATCHING WITH RECORDS");
@@ -120,11 +120,16 @@ public class BookController {
 
 
     @GetMapping("/readers/{emailId}/books")
-    public ResponseEntity<List<Book>> getAllSubscribedBooks(@Valid @PathVariable String emailId) throws BookException{
+    public ResponseEntity<?> getAllSubscribedBooks(@Valid @PathVariable String emailId) throws BookException{
         if(emailId!=null && !emailId.isEmpty()) {
             try {
                 List<Book> subscribedBooks=service.getAllSubscribedBooks(emailId);
-                return new ResponseEntity<>(subscribedBooks,HttpStatus.OK);
+                if(subscribedBooks!=null && !subscribedBooks.isEmpty()) {
+                    return ResponseEntity.status(200).body(subscribedBooks);
+                }
+                else{
+                    return null;
+                }
             }catch(Exception e) {
                 throw new BookException("Sorry something went wrong..Please try after some time",e);
             }

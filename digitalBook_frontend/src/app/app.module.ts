@@ -27,6 +27,7 @@ import { UpdatebookComponent } from './updatebook/updatebook.component';
 import { AllMyBooksComponent } from './all-my-books/all-my-books.component';
 import { BoardReaderComponent } from './board-reader/board-reader.component';
 import { BoardAuthorComponent } from './board-author/board-author.component';
+import { ReaderBooksComponent } from './reader-books/reader-books.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { BoardAuthorComponent } from './board-author/board-author.component';
     UpdatebookComponent,
     AllMyBooksComponent,
     BoardReaderComponent,
-    BoardAuthorComponent
+    BoardAuthorComponent,
+    ReaderBooksComponent
   ],
   imports: [
     BrowserModule,

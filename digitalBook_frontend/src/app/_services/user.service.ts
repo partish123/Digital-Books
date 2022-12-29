@@ -11,6 +11,7 @@ const API_URL:string = 'http://localhost:8081/api/user/';
   providedIn: 'root'
 })
 export class UserService {
+
   constructor(private http: HttpClient, private token: TokenStorageService) { }
 
   authorID: any = this.token.getUser().id;
@@ -44,14 +45,40 @@ export class UserService {
     return this.http.post(`${API_URL}author/${this.token.getUser().id}/books/${bookID}`,updatebook,{ responseType: 'text' });
  }
 
-  getAuthorBooks(book:any): Observable<any>{
+  getAuthorBooks(): Observable<any>{
     return this.http.get(`${API_URL}search?author=${this.authorID}`);
   }
 
+  getAuthorBooksContent(title:any): Observable<any>{
+    return this.http.get(`${API_URL}search?title=${title}`);
+  }
 
+  getReaderBooksContent(title:any): Observable<any>{
+    return this.http.get(`${API_URL}search?title=${title}`);
+  }
 
+  blockOrUnblockBook(authorId:any ,bookId:any,block:any): Observable<any> {
+    return this.http.post(`${API_URL}author/${authorId}/books/${bookId}/block=${block}`, { responseType:'text'});
+  }
 
+  subscribeBook(reader: any, bookId: string) {
+    return this.http.post(API_URL +bookId+'/subscribe', reader,{responseType: 'text'});
+  }
 
+  getReaderSubscribedBooks(emailId: any) {
+    return this.http.get(`${API_URL}readers/${emailId}/books`, { responseType: 'text' });
+  }
 
+  cancelSubscribe(subscriptionId: any): Observable<any>  {
+    return this.http.post(API_URL+'readers/'+ this.token.getUser().email +'/books/'+subscriptionId+'/cancel-subscription',{responseType: 'text'});
+  }
 
 }
+
+
+
+
+
+
+
+

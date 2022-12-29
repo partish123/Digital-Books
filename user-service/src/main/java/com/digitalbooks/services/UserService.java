@@ -94,15 +94,15 @@ public class UserService {
     }
 
 
-    public List<Book> getAllSubscribeBooksByReader(String emailId) throws UserException {
-        List<Book> bookList = null;
+    public Object getAllSubscribeBooksByReader(String emailId) throws UserException {
+        Object bookList = null;
         boolean userExists=userRepository.existsByEmail(emailId);
 
         if(userExists) {
             ResponseEntity<?> books = restClient.getAllSubscribeBooksByReader("readers/{emailId}/books", emailId);
 
             if (books.getStatusCode().equals(HttpStatus.OK))
-                bookList = (List<Book>) books.getBody();
+                bookList =  books.getBody();
         }
         else {
             throw new UserException("User Not Valid..!");
